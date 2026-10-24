@@ -356,9 +356,14 @@ class Show extends Component
                 }
             }
 
+            // A locked value is hidden from the form and cannot be edited there, so the form carries null.
+            // Saving must keep the stored value: otherwise a required variable is rejected as empty and
+            // any other one is silently overwritten with null when only its flags or comment change.
+            if ($this->env->is_shown_once && str($this->value)->isEmpty()) {
+                $this->value = $this->env->getOriginal('value');
+            }
+
             if (! $this->isSharedVariable && $this->is_required && str($this->value)->isEmpty()) {
-                $oldValue = $this->env->getOriginal('value');
-                $this->value = $oldValue;
                 $this->dispatch('error', 'Required environment variables cannot be empty.');
 
                 return;
